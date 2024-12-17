@@ -32,8 +32,9 @@ const configByFieldType: any = {
 const getNodeItemFromField = (f: SPTableField, fieldNameProperty: string = "name") : GoJSNodeItem => {
     const c = configByFieldType[f.type] || configByFieldType['default'];
     const prefix = f.type === "Counter" ? "PK | " : (f.iskey && f.type === "Lookup" ? "FK | " : "");
+    const suffix = f.size > 0 ? ` [${f.size}]`: ""
     return { 
-        name: prefix + (f as any)[fieldNameProperty] + ` (${f.type})`, 
+        name: `${prefix}${(f as any)[fieldNameProperty]} (${f.type})${suffix}`,
         iskey: f.iskey, 
         figure: c.figure, 
         color: f.iskey ? colors.keycolor : c.color,

@@ -19,8 +19,8 @@ const SpSiteErDiagram: React.FC<ISpSiteDiagramProps> = (props: ISpSiteDiagramPro
   const [linkDataArray, setLinkDataArray] = React.useState([]);
   // State: Options
   const [optionRelationOnly, setOptionRelationOnly] = React.useState(true);
-  const [useInternalName, setUseInternalName] = React.useState(true);
-  const [alertsActive, setAlertsActive] = React.useState(true);
+  const [useInternalName, setUseInternalName] = React.useState(false);
+  const [alertsActive, setAlertsActive] = React.useState(false);
   const [fieldsActive, setFieldsActive] = React.useState(true);
 
   const loadDiagram = async (refresh: boolean):Promise<void> => {
@@ -63,9 +63,9 @@ const SpSiteErDiagram: React.FC<ISpSiteDiagramProps> = (props: ISpSiteDiagramPro
         {key: '3', text: useInternalName ? "InternalName" : "DisplayName", iconProps: { iconName: useInternalName ? 'ToggleLeft' : 'ToggleRight' }, onClick: () => { setUseInternalName(!useInternalName); }},
         {key: '4', text: "Download as image", iconProps: { iconName: 'Share' }, onClick: () => { downloadAsImage() }}
       ]} />
-      <div className={styles.spSiteErDiagram} style={{height: "calc(100% - 44px)", padding: "0px"}}>
+      <div className={styles.spSiteErDiagram} style={{ padding: '0px', height: '800px', width: '100%' }}>
         { loadingProgress !== 100 && nodeDataArray.length === 0 ?
-        <div style={{ padding: "8%" }}>
+        <div style={{ padding: '8%' }}>
           <ProgressIndicator label={`Loading Lists and Columns ${loadingProgress.toFixed(0)}%`} percentComplete={loadingProgress/100} />
         </div> : 
         <ReactDiagram ref={diagramRef} 

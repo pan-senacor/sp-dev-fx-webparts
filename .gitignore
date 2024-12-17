@@ -26,6 +26,10 @@ coverage
 bin
 obj
 
+# IntelliJ IDEA files
+.idea
+*.iml
+
 # Resx Generated Code
 *.resx.ts
 

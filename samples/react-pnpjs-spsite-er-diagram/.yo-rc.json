@@ -2,7 +2,7 @@
   "@microsoft/generator-sharepoint": {
     "plusBeta": false,
     "isCreatingSolution": true,
-    "version": "1.15.2",
+    "version": "1.20.0",
     "libraryName": "react-pnpjs-spsite-er-diagram",
     "libraryId": "d0130471-1806-4c7d-a504-9af696d7ed0f",
     "environment": "spo",

@@ -21,7 +21,8 @@ export interface SPTableField {
     displayName: string,
     iskey: boolean,
     isunique: boolean,
-    type: string
+    type: string,
+    size: number
 }
 export interface SPTableAlert {
     type: "Warning" | "Error" | "Info",
@@ -62,7 +63,7 @@ const getSPSiteData = async (spfxContext: any, force?: boolean, progress?: (numb
             progress && progress(loadedCount/totalCount * 100);
 
             // save names for later
-            tmp_listNames[`{${list.Id.toLocaleLowerCase()}}`] = list.Title;
+            tmp_listNames[list.Id.toLocaleLowerCase()] = list.Title;
 
             // Tables/Lists
             const table: SPTable = { id: list.Id, title: list.Title, fields: [], alerts: [] };
@@ -73,24 +74,27 @@ const getSPSiteData = async (spfxContext: any, force?: boolean, progress?: (numb
             )
             //.sort((a,b) => a.InternalName.charCodeAt(0) - b.InternalName.charCodeAt(0) );
             table.fields = fields.map(f => {
+                const field = f as any
+                console.log(`${JSON.stringify(field)}`);
+                const maxLength = field.MaxLength ? field.MaxLength: -1
                 f.InternalName.indexOf("_") > -1 && console.log(f);
                 return { 
                     name: f.InternalName, 
                     displayName: f.Title, 
-                    iskey: (f as any).TypeDisplayName === "Lookup" && (f as any).IsRelationship && (f as any).LookupList !== '' && (f as any).LookupList !== "AppPrincipals",
+                    iskey: field.TypeDisplayName === "Lookup" && field.IsRelationship && field.LookupList !== '' && field.LookupList !== "AppPrincipals",
                     isunique: f.EnforceUniqueValues,
-                    type: f.TypeDisplayName
-                    } 
-                });  
+                    type: f.TypeDisplayName,
+                    size: maxLength
+                }});
 
             // Table Alerts
-            list.ItemCount > 3500 && list.ItemCount < 5000 && table.alerts.push({ title: `Itemcount (${list.ItemCount}) will reach soon 5k => check if all necessary columns are indexed !!`, type:"Error" });
-            list.ItemCount > 5000 && table.alerts.push({ title: `Itemcount (${list.ItemCount}) > 5k. Filter or sorting might not work anymore`, type:"Error" });
+            list.ItemCount > 3500 && list.ItemCount < 5000 && table.alerts.push({ title: `Items count (${list.ItemCount}) will reach soon 5k => check if all necessary columns are indexed !!`, type: "Error" });
+            list.ItemCount > 5000 && table.alerts.push({ title: `Items count (${list.ItemCount}) > 5k. Filter or sorting might not work anymore`, type: "Error" });
             !list.EnableVersioning && table.alerts.push({ title: "no versioning activated", type: "Warning" });
             list.MajorVersionLimit && list.MajorVersionLimit > 100 && table.alerts.push({ title: `high max. version limit (${list.MajorVersionLimit})`, type: "Warning" });
             // Infos
             table.alerts.push({ title: `Crawling is ${list.NoCrawl ? 'inactive' : 'active'}`, type:"Info" });
-            table.alerts.push({ title: `Item Count: ${list.ItemCount}`, type:"Info" });
+            table.alerts.push({ title: `Items Count: ${list.ItemCount}`, type:"Info" });
             table.alerts.push({ title: `ContentTypes ${list.ContentTypesEnabled ? 'enabled' : 'disabled'}`, type:"Info" });
 
             // add Table
@@ -104,7 +108,7 @@ const getSPSiteData = async (spfxContext: any, force?: boolean, progress?: (numb
             {
                 return {
                     fromTableTitle: list.Title,
-                    toTableTitle: (f as any).LookupList!, 
+                    toTableTitle: ((f as any).LookupList)!.replace(/[}{]/g, ""),
                     fromX: "n",
                     toX: 1
                 }
@@ -115,7 +119,7 @@ const getSPSiteData = async (spfxContext: any, force?: boolean, progress?: (numb
     }
 
     // resolve Ids
-    console.log("tmp_listNames",tmp_listNames);
+    console.log("tmp_listNames", tmp_listNames);
     console.log("asd", [...spSiteData.relations]);
     spSiteData.relations = spSiteData.relations.map<SPRelation>((r) => {return {...r, toTableTitle: tmp_listNames[r.toTableTitle.toLocaleLowerCase()]}})
 
